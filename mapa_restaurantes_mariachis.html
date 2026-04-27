@@ -1,0 +1,1048 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Restaurantes con Mariachis - Bogotá Norte / Chía / Cajicá / Cota</title>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #1a1a2e;
+            color: #eee;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #C41E3A 0%, #8B0000 50%, #4A0000 100%);
+            padding: 12px 20px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.4);
+            z-index: 1000;
+            flex-shrink: 0;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .header-left .icon {
+            font-size: 28px;
+        }
+
+        .header h1 {
+            font-size: 18px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .header p {
+            font-size: 11px;
+            opacity: 0.85;
+            margin-top: 2px;
+        }
+
+        .header-stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-num {
+            font-size: 22px;
+            font-weight: 800;
+        }
+
+        .stat-label {
+            font-size: 9px;
+            text-transform: uppercase;
+            opacity: 0.8;
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            overflow: hidden;
+        }
+
+        .sidebar {
+            width: 340px;
+            background: #16213e;
+            overflow-y: auto;
+            border-right: 1px solid #2a2a4a;
+            flex-shrink: 0;
+        }
+
+        .sidebar-header {
+            padding: 12px 16px;
+            background: #0f3460;
+            border-bottom: 1px solid #2a2a4a;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 10px 14px 10px 36px;
+            border: 1px solid #3a3a5a;
+            border-radius: 8px;
+            background: #1a1a2e;
+            color: #eee;
+            font-size: 13px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            border-color: #C41E3A;
+        }
+
+        .search-icon {
+            position: absolute;
+            left: 28px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+            font-size: 13px;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 6px;
+            margin-top: 8px;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 4px 10px;
+            border: 1px solid #3a3a5a;
+            border-radius: 20px;
+            background: transparent;
+            color: #aaa;
+            font-size: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn:hover, .filter-btn.active {
+            background: #C41E3A;
+            border-color: #C41E3A;
+            color: #fff;
+        }
+
+        .restaurant-list {
+            padding: 0;
+        }
+
+        .restaurant-card {
+            padding: 12px 16px;
+            border-bottom: 1px solid #1a1a3e;
+            cursor: pointer;
+            transition: background 0.2s;
+            display: flex;
+            gap: 10px;
+        }
+
+        .restaurant-card:hover {
+            background: #1f2b4d;
+        }
+
+        .restaurant-card.highlighted {
+            background: #2a1a1a;
+            border-left: 3px solid #C41E3A;
+        }
+
+        .card-number {
+            background: #C41E3A;
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 700;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .card-content {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .card-name {
+            font-size: 13px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 3px;
+        }
+
+        .card-zone {
+            font-size: 10px;
+            color: #C41E3A;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .card-address {
+            font-size: 11px;
+            color: #999;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .card-badges {
+            display: flex;
+            gap: 5px;
+            margin-top: 5px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            font-size: 9px;
+            padding: 2px 7px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        .badge-mariachi {
+            background: rgba(196, 30, 58, 0.2);
+            color: #ff6b81;
+            border: 1px solid rgba(196, 30, 58, 0.3);
+        }
+
+        .badge-externo {
+            background: rgba(46, 204, 113, 0.2);
+            color: #2ecc71;
+            border: 1px solid rgba(46, 204, 113, 0.3);
+        }
+
+        .badge-distancia {
+            background: rgba(52, 152, 219, 0.2);
+            color: #5dade2;
+            border: 1px solid rgba(52, 152, 219, 0.3);
+        }
+
+        #map {
+            flex: 1;
+            z-index: 1;
+        }
+
+        .custom-marker {
+            background: none;
+            border: none;
+        }
+
+        .marker-pin {
+            width: 32px;
+            height: 32px;
+            border-radius: 50% 50% 50% 0;
+            background: #C41E3A;
+            position: relative;
+            transform: rotate(-45deg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+        }
+
+        .marker-pin span {
+            transform: rotate(45deg);
+            color: white;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .marker-pin.user-pin {
+            background: #2ecc71;
+            width: 36px;
+            height: 36px;
+        }
+
+        .marker-pin.user-pin span {
+            font-size: 16px;
+        }
+
+        /* Custom popup */
+        .leaflet-popup-content-wrapper {
+            background: #16213e;
+            color: #eee;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            border: 1px solid #2a2a4a;
+        }
+
+        .leaflet-popup-tip {
+            background: #16213e;
+            border: 1px solid #2a2a4a;
+        }
+
+        .leaflet-popup-content {
+            margin: 0;
+            min-width: 280px;
+        }
+
+        .popup-container {
+            padding: 0;
+        }
+
+        .popup-header {
+            background: linear-gradient(135deg, #C41E3A, #8B0000);
+            padding: 12px 16px;
+            border-radius: 12px 12px 0 0;
+        }
+
+        .popup-name {
+            font-size: 16px;
+            font-weight: 700;
+            color: #fff;
+        }
+
+        .popup-zone {
+            font-size: 11px;
+            color: rgba(255,255,255,0.8);
+            margin-top: 2px;
+        }
+
+        .popup-body {
+            padding: 12px 16px;
+        }
+
+        .popup-row {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .popup-row i {
+            color: #C41E3A;
+            width: 16px;
+            text-align: center;
+            margin-top: 2px;
+            font-size: 13px;
+        }
+
+        .popup-row .label {
+            font-size: 10px;
+            color: #888;
+            margin-bottom: 1px;
+        }
+
+        .popup-row .value {
+            font-size: 12px;
+            color: #eee;
+        }
+
+        .popup-row a {
+            color: #5dade2;
+            text-decoration: none;
+        }
+
+        .popup-row a:hover {
+            text-decoration: underline;
+        }
+
+        .popup-badges {
+            display: flex;
+            gap: 6px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .popup-badge {
+            font-size: 10px;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-weight: 600;
+        }
+
+        .popup-social {
+            display: flex;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .popup-social a {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: #2a2a4a;
+            color: #eee;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-size: 13px;
+        }
+
+        .popup-social a:hover {
+            background: #C41E3A;
+        }
+
+        .popup-directions {
+            display: block;
+            margin-top: 12px;
+            padding: 8px;
+            background: #C41E3A;
+            color: white;
+            text-align: center;
+            border-radius: 0 0 12px 12px;
+            text-decoration: none;
+            font-size: 12px;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .popup-directions:hover {
+            background: #a01830;
+        }
+
+        .popup-directions i {
+            margin-right: 6px;
+        }
+
+        .leaflet-popup-close-button {
+            color: #fff !important;
+            font-size: 20px !important;
+            top: 6px !important;
+            right: 8px !important;
+        }
+
+        /* Scrollbar */
+        .sidebar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .sidebar::-webkit-scrollbar-track {
+            background: #16213e;
+        }
+        .sidebar::-webkit-scrollbar-thumb {
+            background: #3a3a5a;
+            border-radius: 3px;
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 100%;
+                max-height: 40vh;
+            }
+            .main-container {
+                flex-direction: column-reverse;
+            }
+            .header-stats {
+                display: none;
+            }
+            .header h1 {
+                font-size: 14px;
+            }
+        }
+
+        .distance-indicator {
+            font-size: 10px;
+            color: #5dade2;
+            margin-top: 3px;
+        }
+
+        .sort-container {
+            padding: 8px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border-bottom: 1px solid #1a1a3e;
+        }
+
+        .sort-container label {
+            font-size: 10px;
+            color: #888;
+        }
+
+        .sort-select {
+            padding: 4px 8px;
+            border: 1px solid #3a3a5a;
+            border-radius: 6px;
+            background: #1a1a2e;
+            color: #eee;
+            font-size: 11px;
+            outline: none;
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div class="header-left">
+        <span class="icon">🎸</span>
+        <div>
+            <h1>Restaurantes con Mariachis para Cumpleaños</h1>
+            <p><i class="fas fa-map-marker-alt"></i> Zona Norte Bogotá / Chía / Cajicá / Cota</p>
+        </div>
+    </div>
+    <div class="header-stats">
+        <div class="stat">
+            <div class="stat-num" id="totalCount">28</div>
+            <div class="stat-label">Restaurantes</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num" id="mariachiCount">18</div>
+            <div class="stat-label">Con Mariachi</div>
+        </div>
+        <div class="stat">
+            <div class="stat-num" id="nearCount">12</div>
+            <div class="stat-label">Cerca de Ti</div>
+        </div>
+    </div>
+</div>
+
+<div class="main-container">
+    <div class="sidebar">
+        <div class="sidebar-header">
+            <div style="position: relative;">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" class="search-box" placeholder="Buscar restaurante, zona..." id="searchBox">
+            </div>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-filter="all">Todos</button>
+                <button class="filter-btn" data-filter="mariachi-vivo">Mariachi en Vivo</button>
+                <button class="filter-btn" data-filter="cerca">Cerca (&lt;15km)</button>
+                <button class="filter-btn" data-filter="chia">Chía</button>
+                <button class="filter-btn" data-filter="bogota-norte">Bogotá Norte</button>
+            </div>
+        </div>
+        <div class="sort-container">
+            <label>Ordenar por:</label>
+            <select class="sort-select" id="sortSelect">
+                <option value="distance">Distancia</option>
+                <option value="name">Nombre</option>
+                <option value="mariachi">Mariachi en Vivo</option>
+            </select>
+        </div>
+        <div class="restaurant-list" id="restaurantList">
+            <!-- Dynamic content -->
+        </div>
+    </div>
+    <div id="map"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script>
+    // User location
+    const USER_LAT = 4.954955;
+    const USER_LNG = -74.0786403;
+
+    // Restaurant data
+    const restaurants = [
+        {
+            id: 1, name: "La Chula Campestre", address: "Km 21 Vía La Caro, Chía",
+            zone: "Chía (Vía La Caro)", phone: "6015110529",
+            lat: 4.9520, lng: -74.0600,
+            social: "@lachulacampestre", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "La Chula Campestre Chía"
+        },
+        {
+            id: 2, name: "Restaurante Mi Margarita", address: "Calle 222 #46-03 Autopista Norte Km 16",
+            zone: "Bogotá Norte (Autopista)", phone: "3162688948",
+            lat: 4.9750, lng: -74.0730,
+            social: "@restaurante_mimargarita", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Restaurante Mi Margarita Bogotá Autopista Norte"
+        },
+        {
+            id: 3, name: "Rancho MX", address: "Hacienda San Francisco, Km 1.5 vía Zipaquirá-Cajicá",
+            zone: "Cajicá", phone: "3107001151",
+            lat: 4.9180, lng: -74.0200,
+            social: "@elranchomx", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Rancho MX Cajicá"
+        },
+        {
+            id: 4, name: "Andrés Carne de Res Chía", address: "Calle 80 Km 2, vía Bogotá-Siberia",
+            zone: "Chía (Siberia)", phone: "3173631884",
+            lat: 4.9120, lng: -74.0570,
+            social: "@andres_c_de_res", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Andrés Carne de Res Chía"
+        },
+        {
+            id: 5, name: "Celestina Restaurante", address: "Vía Cajicá-Chía, al frente de CC",
+            zone: "Chía / Cajicá", phone: "6015557955 / 3157701575",
+            lat: 4.8950, lng: -74.0400,
+            social: "@celestinarestaurante", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Celestina Restaurante Chía Cajicá"
+        },
+        {
+            id: 6, name: "Semolina Chía Fontanar", address: "Km 2.5 vía Chía-Cajicá, Local 253, CC Fontanar",
+            zone: "Chía (Fontanar)", phone: "6013770680 / 3219591208",
+            lat: 4.8950, lng: -74.0450,
+            social: "@semolinarestaurante", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Semolina Fontanar Chía"
+        },
+        {
+            id: 7, name: "Distrito México", address: "Carrera 9 #14-98, Chía",
+            zone: "Chía (Centro)", phone: "Consultar redes",
+            lat: 4.8620, lng: -74.0580,
+            social: "@distritomexico", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Distrito México Chía"
+        },
+        {
+            id: 8, name: "Lupe Tex Mex", address: "Calle 2da #11-80, Variante Chía-Cota",
+            zone: "Chía (Variante Cota)", phone: "Consultar redes",
+            lat: 4.8700, lng: -74.0650,
+            social: "@lupetexmex", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Lupe Tex Mex Chía"
+        },
+        {
+            id: 9, name: "El Galapago Campestre", address: "Calle 19 #14-08, Chía",
+            zone: "Chía (Centro)", phone: "3023653612",
+            lat: 4.8650, lng: -74.0580,
+            social: "@elgalapagorestaurantes", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "El Galapago Campestre Chía"
+        },
+        {
+            id: 10, name: "Restaurante El Transportador", address: "Km 2 Vía Cota-Chía, Finca La Manuela",
+            zone: "Cota", phone: "3176584245",
+            lat: 4.8350, lng: -74.0900,
+            social: "@restauranteeltransportador", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Restaurante El Transportador Cota"
+        },
+        {
+            id: 11, name: "Vulcano Gastrobar", address: "Cra 5 #9-26 sur, Piso 7, Hotel Sabana Park",
+            zone: "Cajicá", phone: "3005914316",
+            lat: 4.9180, lng: -74.0300,
+            social: "@vulcano.gastrobar", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Vulcano Gastrobar Cajicá"
+        },
+        {
+            id: 12, name: "Restaurante El Lobo", address: "Cra 8 #3-32, frente a Bancolombia",
+            zone: "Cajicá", phone: "Consultar redes",
+            lat: 4.9200, lng: -74.0280,
+            social: "@el_lobohamburguesas", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Restaurante El Lobo Cajicá"
+        },
+        {
+            id: 13, name: "La Güera", address: "Calle 138 #55-53, CC La Colina",
+            zone: "Bogotá (Colina Campestre)", phone: "3104571599 / 3114403333",
+            lat: 4.7580, lng: -74.0520,
+            social: "@laguera.co", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "La Güera Restaurante Bogotá"
+        },
+        {
+            id: 14, name: "La Chula 116", address: "Calle 116 #19-50",
+            zone: "Bogotá (Calle 116)", phone: "6015110529",
+            lat: 4.7205, lng: -74.0510,
+            social: "@lachulabogota", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "La Chula 116 Bogotá"
+        },
+        {
+            id: 15, name: "Plaza MX Mariachis", address: "Av. Calle 116 #19-66",
+            zone: "Bogotá (Calle 116 / Santa Bárbara)", phone: "6013909811 / 3216996402",
+            lat: 4.7203, lng: -74.0505,
+            social: "@plazamxmariachi", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Plaza MX Mariachis Bogotá"
+        },
+        {
+            id: 16, name: "Plaza MX Taquería", address: "Cra. 19a #117-13",
+            zone: "Bogotá (Usaquén)", phone: "6013909811 / 3138138040",
+            lat: 4.7250, lng: -74.0445,
+            social: "@plazamxcantina", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Plaza MX Taquería Usaquén"
+        },
+        {
+            id: 17, name: "Casa Mexicana", address: "Calle 118 #5-23, Usaquén",
+            zone: "Bogotá (Usaquén)", phone: "3183306423 / 3188015966",
+            lat: 4.7265, lng: -74.0590,
+            social: "@casamexicanabogota", socialType: "facebook",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Casa Mexicana Usaquén Bogotá"
+        },
+        {
+            id: 18, name: "Casa Jalisco Usaquén", address: "Calle 120a #5-55",
+            zone: "Bogotá (Usaquén)", phone: "6017711535 / 3165639035",
+            lat: 4.7295, lng: -74.0590,
+            social: "@casajaliscousaquen", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Casa Jalisco Usaquén Bogotá"
+        },
+        {
+            id: 19, name: "La Chula Zona T", address: "Cra 13 #82-58, Zona T",
+            zone: "Bogotá (Zona T)", phone: "6015110529",
+            lat: 4.6685, lng: -74.0555,
+            social: "@lachulabogota", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "La Chula Zona T Bogotá"
+        },
+        {
+            id: 20, name: "Cantina La 15", address: "Cra 13 #83-57",
+            zone: "Bogotá (Zona T)", phone: "3102103517 / 3009133447",
+            lat: 4.6675, lng: -74.0555,
+            social: "cantinala15.com", socialType: "web",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Cantina La 15 Bogotá"
+        },
+        {
+            id: 21, name: "El Techo Mexicano", address: "Calle 81 #11-94, Piso 5, CC El Retiro",
+            zone: "Bogotá (Zona Rosa)", phone: "3112103928",
+            lat: 4.6660, lng: -74.0580,
+            social: "@eltechomexicano", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "El Techo Mexicano Bogotá"
+        },
+        {
+            id: 22, name: "Mazaryk Restaurante", address: "Calle 90 #16-34, Piso 2",
+            zone: "Bogotá (Zona Rosa Norte)", phone: "3008039793",
+            lat: 4.6965, lng: -74.0545,
+            social: "@mazarykrestaurante", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Mazaryk Restaurante Bogotá"
+        },
+        {
+            id: 23, name: "La Lupita Restorán", address: "Calle 69a #4-40",
+            zone: "Bogotá (Zona G / Chapinero)", phone: "Consultar Instagram",
+            lat: 4.6370, lng: -74.0590,
+            social: "@lalupitarestaurante", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "La Lupita Restorán Bogotá"
+        },
+        {
+            id: 24, name: "Náhuatl Cocina Mexicana", address: "Calle 69a #5-36",
+            zone: "Bogotá (Zona G / Chapinero)", phone: "Consultar Instagram",
+            lat: 4.6375, lng: -74.0585,
+            social: "@nahuatl.restaurante", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Náhuatl Cocina Mexicana Bogotá"
+        },
+        {
+            id: 25, name: "La Bendita Cantina Mariachi", address: "Cra 60 #24-09, CC Gran Estación II, Local 333",
+            zone: "Bogotá (Teusaquillo / Gran Estación)", phone: "6962013 / 3123890345",
+            lat: 4.6500, lng: -74.0940,
+            social: "@labenditacantinamariachi", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "La Bendita Cantina Mariachi Bogotá"
+        },
+        {
+            id: 26, name: "Bar Cantineros", address: "Av Calle 72 #97-22",
+            zone: "Bogotá (Engativá)", phone: "3008254249",
+            lat: 4.6510, lng: -74.0605,
+            social: "@cantinerosbar", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Bar Cantineros Bogotá"
+        },
+        {
+            id: 27, name: "Jalisco Comida Mexicana & Parrilla", address: "Cra 11 #97-14, Chicó Norte",
+            zone: "Bogotá (Chicó Norte)", phone: "3165816938",
+            lat: 4.6685, lng: -74.0540,
+            social: "@jaliscoyparrilla", socialType: "instagram",
+            mariachiVivo: false, mariachiExterno: true,
+            mapsSearch: "Jalisco Comida Mexicana Parrilla Bogotá"
+        },
+        {
+            id: 28, name: "Plaza MX Modelia", address: "Calle 24D #75-20",
+            zone: "Bogotá (Modelia)", phone: "6013909811",
+            lat: 4.6610, lng: -74.1030,
+            social: "@plazamxmodelia", socialType: "instagram",
+            mariachiVivo: true, mariachiExterno: true,
+            mapsSearch: "Plaza MX Modelia Bogotá"
+        }
+    ];
+
+    // Calculate distances
+    function haversine(lat1, lon1, lat2, lon2) {
+        const R = 6371;
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    }
+
+    restaurants.forEach(r => {
+        r.distance = haversine(USER_LAT, USER_LNG, r.lat, r.lng);
+    });
+
+    // Initialize map
+    const map = L.map('map', {
+        center: [USER_LAT, USER_LNG],
+        zoom: 11,
+        zoomControl: true
+    });
+
+    // Using CartoDB tiles which work from file:// protocol (no Referer requirement)
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
+        maxZoom: 20,
+        subdomains: 'abcd'
+    }).addTo(map);
+
+    // User marker
+    const userIcon = L.divIcon({
+        className: 'custom-marker',
+        html: '<div class="marker-pin user-pin"><span>📍</span></div>',
+        iconSize: [36, 36],
+        iconAnchor: [18, 36],
+        popupAnchor: [0, -36]
+    });
+
+    L.marker([USER_LAT, USER_LNG], { icon: userIcon })
+        .addTo(map)
+        .bindPopup(`
+            <div class="popup-container">
+                <div class="popup-header">
+                    <div class="popup-name">Tu Ubicación</div>
+                    <div class="popup-zone">4°57'17.8"N 74°04'43.1"W</div>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-row">
+                        <i class="fas fa-home"></i>
+                        <div>
+                            <div class="label">ZONA</div>
+                            <div class="value">La Caro / Norte de Bogotá</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `);
+
+    // Restaurant markers
+    const markers = {};
+    let currentFilter = 'all';
+
+    function createMarkerIcon(id) {
+        return L.divIcon({
+            className: 'custom-marker',
+            html: `<div class="marker-pin"><span>${id}</span></div>`,
+            iconSize: [32, 32],
+            iconAnchor: [16, 32],
+            popupAnchor: [0, -32]
+        });
+    }
+
+    function getSocialLink(r) {
+        if (r.socialType === 'instagram') {
+            return `https://www.instagram.com/${r.social.replace('@', '')}/`;
+        } else if (r.socialType === 'facebook') {
+            return `https://www.facebook.com/${r.social.replace('@', '')}/`;
+        } else if (r.socialType === 'web') {
+            return r.social.startsWith('http') ? r.social : `https://${r.social}`;
+        }
+        return '#';
+    }
+
+    function getSocialIcon(type) {
+        switch(type) {
+            case 'instagram': return 'fab fa-instagram';
+            case 'facebook': return 'fab fa-facebook-f';
+            case 'web': return 'fas fa-globe';
+            default: return 'fas fa-link';
+        }
+    }
+
+    function createPopupContent(r) {
+        const distKm = r.distance.toFixed(1);
+        const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lng}`;
+        const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${USER_LAT},${USER_LNG}&destination=${r.lat},${r.lng}`;
+        const socialLink = getSocialLink(r);
+        const socialIcon = getSocialIcon(r.socialType);
+
+        return `
+            <div class="popup-container">
+                <div class="popup-header">
+                    <div class="popup-name">${r.name}</div>
+                    <div class="popup-zone">${r.zone}</div>
+                </div>
+                <div class="popup-body">
+                    <div class="popup-row">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <div>
+                            <div class="label">DIRECCIÓN</div>
+                            <div class="value">${r.address}</div>
+                        </div>
+                    </div>
+                    <div class="popup-row">
+                        <i class="fas fa-phone"></i>
+                        <div>
+                            <div class="label">TELÉFONO</div>
+                            <div class="value">${r.phone}</div>
+                        </div>
+                    </div>
+                    <div class="popup-row">
+                        <i class="fas fa-route"></i>
+                        <div>
+                            <div class="label">DISTANCIA DESDE TU UBICACIÓN</div>
+                            <div class="value">${distKm} km</div>
+                        </div>
+                    </div>
+                    <div class="popup-badges">
+                        ${r.mariachiVivo ? '<span class="popup-badge" style="background:rgba(196,30,58,0.2);color:#ff6b81;border:1px solid rgba(196,30,58,0.3);">🎸 Mariachi en Vivo</span>' : ''}
+                        ${r.mariachiExterno ? '<span class="popup-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;border:1px solid rgba(46,204,113,0.3);">✅ Permite Mariachis</span>' : ''}
+                    </div>
+                    <div class="popup-social">
+                        <a href="${socialLink}" target="_blank" rel="noreferrer" title="Red social">
+                            <i class="${socialIcon}"></i>
+                        </a>
+                        <a href="${mapsUrl}" target="_blank" rel="noreferrer" title="Ver en Google Maps">
+                            <i class="fas fa-map"></i>
+                        </a>
+                        <a href="tel:${r.phone.replace(/\s|\/|-/g, '').split(',')[0]}" title="Llamar">
+                            <i class="fas fa-phone"></i>
+                        </a>
+                    </div>
+                </div>
+                <a href="${directionsUrl}" target="_blank" class="popup-directions">
+                    <i class="fas fa-directions"></i> Cómo llegar desde mi ubicación
+                </a>
+            </div>
+        `;
+    }
+
+    restaurants.forEach(r => {
+        const marker = L.marker([r.lat, r.lng], { icon: createMarkerIcon(r.id) })
+            .addTo(map)
+            .bindPopup(createPopupContent(r), { maxWidth: 320, minWidth: 280 });
+        markers[r.id] = marker;
+    });
+
+    // Sidebar rendering
+    function filterRestaurants(filter, searchTerm = '') {
+        let filtered = [...restaurants];
+        
+        if (filter === 'mariachi-vivo') {
+            filtered = filtered.filter(r => r.mariachiVivo);
+        } else if (filter === 'cerca') {
+            filtered = filtered.filter(r => r.distance <= 15);
+        } else if (filter === 'chia') {
+            filtered = filtered.filter(r => r.zone.toLowerCase().includes('chía') || r.zone.toLowerCase().includes('chia') || r.zone.toLowerCase().includes('cajicá') || r.zone.toLowerCase().includes('cota'));
+        } else if (filter === 'bogota-norte') {
+            filtered = filtered.filter(r => r.zone.toLowerCase().includes('bogotá') && (r.zone.includes('Norte') || r.zone.includes('Usaquén') || r.zone.includes('116') || r.zone.includes('Colina') || r.zone.includes('Chicó')));
+        }
+
+        if (searchTerm) {
+            const term = searchTerm.toLowerCase();
+            filtered = filtered.filter(r => 
+                r.name.toLowerCase().includes(term) || 
+                r.zone.toLowerCase().includes(term) || 
+                r.address.toLowerCase().includes(term)
+            );
+        }
+
+        return filtered;
+    }
+
+    function sortRestaurants(filtered) {
+        const sortBy = document.getElementById('sortSelect').value;
+        if (sortBy === 'distance') {
+            filtered.sort((a, b) => a.distance - b.distance);
+        } else if (sortBy === 'name') {
+            filtered.sort((a, b) => a.name.localeCompare(b.name));
+        } else if (sortBy === 'mariachi') {
+            filtered.sort((a, b) => (b.mariachiVivo ? 1 : 0) - (a.mariachiVivo ? 1 : 0) || a.distance - b.distance);
+        }
+        return filtered;
+    }
+
+    function renderList() {
+        const searchTerm = document.getElementById('searchBox').value;
+        let filtered = filterRestaurants(currentFilter, searchTerm);
+        filtered = sortRestaurants(filtered);
+
+        const listEl = document.getElementById('restaurantList');
+        listEl.innerHTML = filtered.map(r => `
+            <div class="restaurant-card" data-id="${r.id}" onclick="focusRestaurant(${r.id})">
+                <div class="card-number">${r.id}</div>
+                <div class="card-content">
+                    <div class="card-name">${r.name}</div>
+                    <div class="card-zone">${r.zone}</div>
+                    <div class="card-address">${r.address}</div>
+                    <div class="distance-indicator"><i class="fas fa-route"></i> ${r.distance.toFixed(1)} km de tu ubicación</div>
+                    <div class="card-badges">
+                        ${r.mariachiVivo ? '<span class="badge badge-mariachi">🎸 Mariachi Vivo</span>' : ''}
+                        ${r.mariachiExterno ? '<span class="badge badge-externo">✅ Mariachis OK</span>' : ''}
+                        ${r.distance <= 10 ? '<span class="badge badge-distancia">📍 Muy Cerca</span>' : ''}
+                    </div>
+                </div>
+            </div>
+        `).join('');
+
+        // Update stats
+        document.getElementById('totalCount').textContent = filtered.length;
+        document.getElementById('mariachiCount').textContent = filtered.filter(r => r.mariachiVivo).length;
+        document.getElementById('nearCount').textContent = filtered.filter(r => r.distance <= 15).length;
+
+        // Show/hide markers
+        const filteredIds = new Set(filtered.map(r => r.id));
+        restaurants.forEach(r => {
+            if (markers[r.id]) {
+                if (filteredIds.has(r.id)) {
+                    if (!map.hasLayer(markers[r.id])) markers[r.id].addTo(map);
+                } else {
+                    if (map.hasLayer(markers[r.id])) map.removeLayer(markers[r.id]);
+                }
+            }
+        });
+    }
+
+    function focusRestaurant(id) {
+        const r = restaurants.find(r => r.id === id);
+        if (r && markers[id]) {
+            map.setView([r.lat, r.lng], 15);
+            markers[id].openPopup();
+            
+            // Highlight card
+            document.querySelectorAll('.restaurant-card').forEach(c => c.classList.remove('highlighted'));
+            const card = document.querySelector(`.restaurant-card[data-id="${id}"]`);
+            if (card) {
+                card.classList.add('highlighted');
+                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+            }
+        }
+    }
+
+    // Event listeners
+    document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentFilter = btn.dataset.filter;
+            renderList();
+        });
+    });
+
+    document.getElementById('searchBox').addEventListener('input', renderList);
+    document.getElementById('sortSelect').addEventListener('change', renderList);
+
+    // Initial render
+    renderList();
+</script>
+</body>
+</html>
