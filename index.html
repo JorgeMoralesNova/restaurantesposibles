@@ -3,12 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Restaurantes con Mariachis - Bogotá Norte / Chía / Cajicá / Cota</title>
+    <title>Restaurantes Familiares para Cumpleaños - Bogotá Norte / Chía / Cajicá / Cota</title>
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" />
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #1a1a2e;
@@ -17,9 +16,8 @@
             display: flex;
             flex-direction: column;
         }
-
         .header {
-            background: linear-gradient(135deg, #C41E3A 0%, #8B0000 50%, #4A0000 100%);
+            background: linear-gradient(135deg, #2e7d32 0%, #1b5e20 50%, #0d3b0f 100%);
             padding: 12px 20px;
             display: flex;
             align-items: center;
@@ -28,63 +26,22 @@
             z-index: 1000;
             flex-shrink: 0;
         }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .header-left .icon {
-            font-size: 28px;
-        }
-
-        .header h1 {
-            font-size: 18px;
-            font-weight: 700;
-            letter-spacing: 0.5px;
-        }
-
-        .header p {
-            font-size: 11px;
-            opacity: 0.85;
-            margin-top: 2px;
-        }
-
-        .header-stats {
-            display: flex;
-            gap: 20px;
-        }
-
-        .stat {
-            text-align: center;
-        }
-
-        .stat-num {
-            font-size: 22px;
-            font-weight: 800;
-        }
-
-        .stat-label {
-            font-size: 9px;
-            text-transform: uppercase;
-            opacity: 0.8;
-        }
-
-        .main-container {
-            flex: 1;
-            display: flex;
-            overflow: hidden;
-        }
-
+        .header-left { display: flex; align-items: center; gap: 12px; }
+        .header-left .icon { font-size: 28px; }
+        .header h1 { font-size: 17px; font-weight: 700; letter-spacing: 0.5px; }
+        .header p { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+        .header-stats { display: flex; gap: 20px; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 22px; font-weight: 800; }
+        .stat-label { font-size: 9px; text-transform: uppercase; opacity: 0.8; }
+        .main-container { flex: 1; display: flex; overflow: hidden; }
         .sidebar {
-            width: 340px;
+            width: 350px;
             background: #16213e;
             overflow-y: auto;
             border-right: 1px solid #2a2a4a;
             flex-shrink: 0;
         }
-
         .sidebar-header {
             padding: 12px 16px;
             background: #0f3460;
@@ -93,7 +50,6 @@
             top: 0;
             z-index: 100;
         }
-
         .search-box {
             width: 100%;
             padding: 10px 14px 10px 36px;
@@ -105,11 +61,7 @@
             outline: none;
             transition: border-color 0.3s;
         }
-
-        .search-box:focus {
-            border-color: #C41E3A;
-        }
-
+        .search-box:focus { border-color: #2e7d32; }
         .search-icon {
             position: absolute;
             left: 28px;
@@ -118,14 +70,7 @@
             color: #888;
             font-size: 13px;
         }
-
-        .filter-buttons {
-            display: flex;
-            gap: 6px;
-            margin-top: 8px;
-            flex-wrap: wrap;
-        }
-
+        .filter-buttons { display: flex; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
         .filter-btn {
             padding: 4px 10px;
             border: 1px solid #3a3a5a;
@@ -136,17 +81,12 @@
             cursor: pointer;
             transition: all 0.3s;
         }
-
         .filter-btn:hover, .filter-btn.active {
-            background: #C41E3A;
-            border-color: #C41E3A;
+            background: #2e7d32;
+            border-color: #2e7d32;
             color: #fff;
         }
-
-        .restaurant-list {
-            padding: 0;
-        }
-
+        .restaurant-list { padding: 0; }
         .restaurant-card {
             padding: 12px 16px;
             border-bottom: 1px solid #1a1a3e;
@@ -155,21 +95,15 @@
             display: flex;
             gap: 10px;
         }
-
-        .restaurant-card:hover {
-            background: #1f2b4d;
-        }
-
+        .restaurant-card:hover { background: #1f2b4d; }
         .restaurant-card.highlighted {
-            background: #2a1a1a;
-            border-left: 3px solid #C41E3A;
+            background: #1a2a1a;
+            border-left: 3px solid #2e7d32;
         }
-
         .card-number {
-            background: #C41E3A;
+            background: #2e7d32;
             color: white;
-            width: 28px;
-            height: 28px;
+            width: 28px; height: 28px;
             border-radius: 50%;
             display: flex;
             align-items: center;
@@ -179,81 +113,45 @@
             flex-shrink: 0;
             margin-top: 2px;
         }
-
-        .card-content {
-            flex: 1;
-            min-width: 0;
-        }
-
-        .card-name {
-            font-size: 13px;
-            font-weight: 600;
-            color: #fff;
-            margin-bottom: 3px;
-        }
-
-        .card-zone {
-            font-size: 10px;
-            color: #C41E3A;
-            margin-bottom: 4px;
-            font-weight: 500;
-        }
-
-        .card-address {
-            font-size: 11px;
-            color: #999;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
-
-        .card-badges {
-            display: flex;
-            gap: 5px;
-            margin-top: 5px;
-            flex-wrap: wrap;
-        }
-
-        .badge {
-            font-size: 9px;
-            padding: 2px 7px;
-            border-radius: 10px;
-            font-weight: 600;
-        }
-
+        .card-number.specified { background: #2e7d32; }
+        .card-number.not-specified { background: #e65100; }
+        .card-content { flex: 1; min-width: 0; }
+        .card-name { font-size: 13px; font-weight: 600; color: #fff; margin-bottom: 3px; }
+        .card-zone { font-size: 10px; color: #66bb6a; margin-bottom: 4px; font-weight: 500; }
+        .card-address { font-size: 11px; color: #999; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .card-badges { display: flex; gap: 5px; margin-top: 5px; flex-wrap: wrap; }
+        .badge { font-size: 9px; padding: 2px 7px; border-radius: 10px; font-weight: 600; }
         .badge-mariachi {
-            background: rgba(196, 30, 58, 0.2);
-            color: #ff6b81;
-            border: 1px solid rgba(196, 30, 58, 0.3);
+            background: rgba(46, 125, 50, 0.2);
+            color: #81c784;
+            border: 1px solid rgba(46, 125, 50, 0.3);
         }
-
-        .badge-externo {
-            background: rgba(46, 204, 113, 0.2);
-            color: #2ecc71;
-            border: 1px solid rgba(46, 204, 113, 0.3);
+        .badge-familiar {
+            background: rgba(33, 150, 243, 0.2);
+            color: #64b5f6;
+            border: 1px solid rgba(33, 150, 243, 0.3);
         }
-
+        .badge-campestre {
+            background: rgba(139, 69, 19, 0.3);
+            color: #d4a574;
+            border: 1px solid rgba(139, 69, 19, 0.4);
+        }
+        .badge-not-specified {
+            background: rgba(230, 81, 0, 0.2);
+            color: #ffb74d;
+            border: 1px solid rgba(230, 81, 0, 0.3);
+        }
         .badge-distancia {
             background: rgba(52, 152, 219, 0.2);
             color: #5dade2;
             border: 1px solid rgba(52, 152, 219, 0.3);
         }
-
-        #map {
-            flex: 1;
-            z-index: 1;
-        }
-
-        .custom-marker {
-            background: none;
-            border: none;
-        }
-
+        #map { flex: 1; z-index: 1; }
+        .custom-marker { background: none; border: none; }
         .marker-pin {
-            width: 32px;
-            height: 32px;
+            width: 32px; height: 32px;
             border-radius: 50% 50% 50% 0;
-            background: #C41E3A;
+            background: #2e7d32;
             position: relative;
             transform: rotate(-45deg);
             display: flex;
@@ -261,25 +159,8 @@
             justify-content: center;
             box-shadow: 0 2px 8px rgba(0,0,0,0.4);
         }
-
-        .marker-pin span {
-            transform: rotate(45deg);
-            color: white;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .marker-pin.user-pin {
-            background: #2ecc71;
-            width: 36px;
-            height: 36px;
-        }
-
-        .marker-pin.user-pin span {
-            font-size: 16px;
-        }
-
-        /* Custom popup */
+        .marker-pin.not-specified-pin { background: #e65100; }
+        .marker-pin span { transform: rotate(45deg); color: white; font-size: 12px; font-weight: 700; }
         .leaflet-popup-content-wrapper {
             background: #16213e;
             color: #eee;
@@ -287,225 +168,95 @@
             box-shadow: 0 8px 30px rgba(0,0,0,0.5);
             border: 1px solid #2a2a4a;
         }
-
-        .leaflet-popup-tip {
-            background: #16213e;
-            border: 1px solid #2a2a4a;
-        }
-
-        .leaflet-popup-content {
-            margin: 0;
-            min-width: 280px;
-        }
-
-        .popup-container {
-            padding: 0;
-        }
-
+        .leaflet-popup-tip { background: #16213e; border: 1px solid #2a2a4a; }
+        .leaflet-popup-content { margin: 0; min-width: 290px; }
+        .popup-container { padding: 0; }
         .popup-header {
-            background: linear-gradient(135deg, #C41E3A, #8B0000);
+            background: linear-gradient(135deg, #2e7d32, #1b5e20);
             padding: 12px 16px;
             border-radius: 12px 12px 0 0;
         }
-
-        .popup-name {
-            font-size: 16px;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .popup-zone {
-            font-size: 11px;
-            color: rgba(255,255,255,0.8);
-            margin-top: 2px;
-        }
-
-        .popup-body {
-            padding: 12px 16px;
-        }
-
-        .popup-row {
-            display: flex;
-            align-items: flex-start;
-            gap: 10px;
-            margin-bottom: 10px;
-        }
-
-        .popup-row i {
-            color: #C41E3A;
-            width: 16px;
-            text-align: center;
-            margin-top: 2px;
-            font-size: 13px;
-        }
-
-        .popup-row .label {
-            font-size: 10px;
-            color: #888;
-            margin-bottom: 1px;
-        }
-
-        .popup-row .value {
-            font-size: 12px;
-            color: #eee;
-        }
-
-        .popup-row a {
-            color: #5dade2;
-            text-decoration: none;
-        }
-
-        .popup-row a:hover {
-            text-decoration: underline;
-        }
-
-        .popup-badges {
-            display: flex;
-            gap: 6px;
-            margin-top: 10px;
-            flex-wrap: wrap;
-        }
-
-        .popup-badge {
-            font-size: 10px;
-            padding: 3px 10px;
-            border-radius: 12px;
-            font-weight: 600;
-        }
-
-        .popup-social {
-            display: flex;
-            gap: 8px;
-            margin-top: 10px;
-        }
-
+        .popup-name { font-size: 16px; font-weight: 700; color: #fff; }
+        .popup-zone { font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 2px; }
+        .popup-body { padding: 12px 16px; }
+        .popup-row { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+        .popup-row i { color: #66bb6a; width: 16px; text-align: center; margin-top: 2px; font-size: 13px; }
+        .popup-row .label { font-size: 10px; color: #888; margin-bottom: 1px; }
+        .popup-row .value { font-size: 12px; color: #eee; }
+        .popup-row a { color: #5dade2; text-decoration: none; }
+        .popup-row a:hover { text-decoration: underline; }
+        .popup-badges { display: flex; gap: 6px; margin-top: 10px; flex-wrap: wrap; }
+        .popup-badge { font-size: 10px; padding: 3px 10px; border-radius: 12px; font-weight: 600; }
+        .popup-social { display: flex; gap: 8px; margin-top: 10px; }
         .popup-social a {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #2a2a4a;
-            color: #eee;
-            text-decoration: none;
-            transition: background 0.3s;
-            font-size: 13px;
+            display: flex; align-items: center; justify-content: center;
+            width: 30px; height: 30px; border-radius: 50%;
+            background: #2a2a4a; color: #eee; text-decoration: none;
+            transition: background 0.3s; font-size: 13px;
         }
-
-        .popup-social a:hover {
-            background: #C41E3A;
-        }
-
+        .popup-social a:hover { background: #2e7d32; }
         .popup-directions {
-            display: block;
-            margin-top: 12px;
-            padding: 8px;
-            background: #C41E3A;
-            color: white;
-            text-align: center;
-            border-radius: 0 0 12px 12px;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-            transition: background 0.3s;
+            display: block; margin-top: 12px; padding: 8px;
+            background: #2e7d32; color: white; text-align: center;
+            border-radius: 0 0 12px 12px; text-decoration: none;
+            font-size: 12px; font-weight: 600; transition: background 0.3s;
         }
-
-        .popup-directions:hover {
-            background: #a01830;
-        }
-
-        .popup-directions i {
-            margin-right: 6px;
-        }
-
-        .leaflet-popup-close-button {
-            color: #fff !important;
-            font-size: 20px !important;
-            top: 6px !important;
-            right: 8px !important;
-        }
-
-        /* Scrollbar */
-        .sidebar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .sidebar::-webkit-scrollbar-track {
-            background: #16213e;
-        }
-        .sidebar::-webkit-scrollbar-thumb {
-            background: #3a3a5a;
-            border-radius: 3px;
-        }
-
-        /* Mobile responsive */
+        .popup-directions:hover { background: #1b5e20; }
+        .popup-directions i { margin-right: 6px; }
+        .leaflet-popup-close-button { color: #fff !important; font-size: 20px !important; top: 6px !important; right: 8px !important; }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-track { background: #16213e; }
+        .sidebar::-webkit-scrollbar-thumb { background: #3a3a5a; border-radius: 3px; }
         @media (max-width: 768px) {
-            .sidebar {
-                width: 100%;
-                max-height: 40vh;
-            }
-            .main-container {
-                flex-direction: column-reverse;
-            }
-            .header-stats {
-                display: none;
-            }
-            .header h1 {
-                font-size: 14px;
-            }
+            .sidebar { width: 100%; max-height: 40vh; }
+            .main-container { flex-direction: column-reverse; }
+            .header-stats { display: none; }
+            .header h1 { font-size: 13px; }
         }
-
-        .distance-indicator {
-            font-size: 10px;
-            color: #5dade2;
-            margin-top: 3px;
-        }
-
+        .distance-indicator { font-size: 10px; color: #5dade2; margin-top: 3px; }
         .sort-container {
             padding: 8px 16px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            display: flex; align-items: center; gap: 8px;
             border-bottom: 1px solid #1a1a3e;
         }
-
-        .sort-container label {
-            font-size: 10px;
-            color: #888;
-        }
-
+        .sort-container label { font-size: 10px; color: #888; }
         .sort-select {
             padding: 4px 8px;
             border: 1px solid #3a3a5a;
             border-radius: 6px;
-            background: #1a1a2e;
-            color: #eee;
-            font-size: 11px;
-            outline: none;
+            background: #1a1a2e; color: #eee; font-size: 11px; outline: none;
         }
+        .legend {
+            padding: 10px 16px;
+            background: #0f2a0f;
+            border-bottom: 1px solid #1a1a3e;
+            font-size: 10px;
+        }
+        .legend-item { display: inline-flex; align-items: center; gap: 4px; margin-right: 12px; }
+        .legend-dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
     </style>
 </head>
 <body>
 
 <div class="header">
     <div class="header-left">
-        <span class="icon">🎸</span>
+        <span class="icon">👨‍👩‍👧‍👦</span>
         <div>
-            <h1>Restaurantes con Mariachis para Cumpleaños</h1>
-            <p><i class="fas fa-map-marker-alt"></i> Zona Norte Bogotá / Chía / Cajicá / Cota</p>
+            <h1>Restaurantes Familiares para Cumpleaños con Mariachis</h1>
+            <p><i class="fas fa-map-marker-alt"></i> Zona Norte Bogotá / Chía / Cajicá / Cota — Ambiente familiar, no bares</p>
         </div>
     </div>
     <div class="header-stats">
         <div class="stat">
-            <div class="stat-num" id="totalCount">28</div>
+            <div class="stat-num" id="totalCount">35</div>
             <div class="stat-label">Restaurantes</div>
         </div>
         <div class="stat">
-            <div class="stat-num" id="mariachiCount">18</div>
-            <div class="stat-label">Con Mariachi</div>
+            <div class="stat-num" id="mariachiCount">8</div>
+            <div class="stat-label">Mariachi Confirmado</div>
         </div>
         <div class="stat">
-            <div class="stat-num" id="nearCount">12</div>
+            <div class="stat-num" id="nearCount">14</div>
             <div class="stat-label">Cerca de Ti</div>
         </div>
     </div>
@@ -520,262 +271,428 @@
             </div>
             <div class="filter-buttons">
                 <button class="filter-btn active" data-filter="all">Todos</button>
-                <button class="filter-btn" data-filter="mariachi-vivo">Mariachi en Vivo</button>
+                <button class="filter-btn" data-filter="mariachi-si">Mariachi Confirmado</button>
+                <button class="filter-btn" data-filter="mariachi-no">Mariachi No Especificado</button>
                 <button class="filter-btn" data-filter="cerca">Cerca (&lt;15km)</button>
-                <button class="filter-btn" data-filter="chia">Chía</button>
-                <button class="filter-btn" data-filter="bogota-norte">Bogotá Norte</button>
+                <button class="filter-btn" data-filter="chia">Chía / Cajicá / Cota</button>
+                <button class="filter-btn" data-filter="campestre">Campestre</button>
+                <button class="filter-btn" data-filter="bogota">Bogotá</button>
             </div>
+        </div>
+        <div class="legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#2e7d32;"></span> Mariachi confirmado</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#e65100;"></span> Mariachi no especificado</span>
         </div>
         <div class="sort-container">
             <label>Ordenar por:</label>
             <select class="sort-select" id="sortSelect">
                 <option value="distance">Distancia</option>
                 <option value="name">Nombre</option>
-                <option value="mariachi">Mariachi en Vivo</option>
+                <option value="mariachi">Mariachi primero</option>
             </select>
         </div>
-        <div class="restaurant-list" id="restaurantList">
-            <!-- Dynamic content -->
-        </div>
+        <div class="restaurant-list" id="restaurantList"></div>
     </div>
     <div id="map"></div>
 </div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
-    // User location
-    const USER_LAT = 4.954955;
-    const USER_LNG = -74.0786403;
+    // Coordenadas de referencia para cálculos de distancia (no se muestran en el mapa)
+    const REF_LAT = 4.954955;
+    const REF_LNG = -74.0786403;
 
-    // Restaurant data
     const restaurants = [
+        // === CERCA DE TU UBICACIÓN (Chía / La Caro / Cota / Cajicá) ===
         {
-            id: 1, name: "La Chula Campestre", address: "Km 21 Vía La Caro, Chía",
+            id: 1, name: "La Chula Campestre",
+            address: "Km 21 Vía La Caro, Chía",
             zone: "Chía (Vía La Caro)", phone: "6015110529",
             lat: 4.9520, lng: -74.0600,
             social: "@lachulacampestre", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
+            mariachiSpecified: true,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre mexicano con mariachi en vivo, espacios amplios al aire libre. Ideal para familias.",
             mapsSearch: "La Chula Campestre Chía"
         },
         {
-            id: 2, name: "Restaurante Mi Margarita", address: "Calle 222 #46-03 Autopista Norte Km 16",
+            id: 2, name: "Restaurante Mi Margarita",
+            address: "Calle 222 #46-03 Autopista Norte Km 16",
             zone: "Bogotá Norte (Autopista)", phone: "3162688948",
             lat: 4.9750, lng: -74.0730,
             social: "@restaurante_mimargarita", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
+            mariachiSpecified: true,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre familiar. Show de caballos, mariachis, poncho y sombrero para cumpleañeros. Zona verde amplia.",
             mapsSearch: "Restaurante Mi Margarita Bogotá Autopista Norte"
         },
         {
-            id: 3, name: "Rancho MX", address: "Hacienda San Francisco, Km 1.5 vía Zipaquirá-Cajicá",
+            id: 3, name: "El Tambor Chía",
+            address: "Km 28 Vía La Caro, Chía",
+            zone: "Chía (Vía La Caro)", phone: "Consultar Instagram",
+            lat: 4.9380, lng: -74.0490,
+            social: "@eltambor_rest", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre con parrillada colombiana. Puedes traer torta de cumpleaños. Ambiente familiar y campestre.",
+            mapsSearch: "El Tambor Restaurante Chía"
+        },
+        {
+            id: 4, name: "The Rancho Restaurante",
+            address: "Autopista Norte, Sector La Caro, Chía",
+            zone: "Chía (La Caro / Autopista)", phone: "3123523527 / 3103439643",
+            lat: 4.9480, lng: -74.0650,
+            social: "@theranchorestaurante", socialType: "facebook",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante con shows en vivo los fines de semana. Eventos especiales y cumpleaños. Menú variado para toda la familia.",
+            mapsSearch: "The Rancho Restaurante Chía La Caro"
+        },
+        {
+            id: 5, name: "Rancho MX",
+            address: "Hacienda San Francisco, Km 1.5 vía Zipaquirá-Cajicá",
             zone: "Cajicá", phone: "3107001151",
             lat: 4.9180, lng: -74.0200,
             social: "@elranchomx", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
+            mariachiSpecified: true,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre mexicano. Show de mariachis domingo a domingo. Espacios amplios para familias y eventos.",
             mapsSearch: "Rancho MX Cajicá"
         },
         {
-            id: 4, name: "Andrés Carne de Res Chía", address: "Calle 80 Km 2, vía Bogotá-Siberia",
+            id: 6, name: "Andrés Carne de Res Chía",
+            address: "Calle 80 Km 2, vía Bogotá-Siberia, Chía",
             zone: "Chía (Siberia)", phone: "3173631884",
             lat: 4.9120, lng: -74.0570,
             social: "@andres_c_de_res", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "El restaurante colombiano más famoso. Ambiente festivo familiar con música en vivo. Permiten mariachis externos (consultar).",
             mapsSearch: "Andrés Carne de Res Chía"
         },
         {
-            id: 5, name: "Celestina Restaurante", address: "Vía Cajicá-Chía, al frente de CC",
+            id: 7, name: "Jaramillo Campestre",
+            address: "Cra 2 Este #26-01, Vía Indumil, Chía",
+            zone: "Chía (Campestre)", phone: "3150634902",
+            lat: 4.8800, lng: -74.0400,
+            social: "@jaramillocampestre", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre con granja, caballos, parque para niños y mascotas. Parrilla de novillo. Ideal para ir en familia.",
+            mapsSearch: "Jaramillo Campestre Chía"
+        },
+        {
+            id: 8, name: "Tierra Roja Restaurant",
+            address: "Cra 10 #1 Sur-324, Vía Guaymaral, Chía",
+            zone: "Chía (Guaymaral)", phone: "3114808890 / 318611808",
+            lat: 4.9150, lng: -74.0520,
+            social: "@tierrarojarest", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante de cocina mediterránea y de autor. Rated #1 en Chía en TripAdvisor. Espacios campestres elegantes para celebrar.",
+            mapsSearch: "Tierra Roja Restaurant Chía"
+        },
+        {
+            id: 9, name: "Celestina Restaurante",
+            address: "Vía Cajicá-Chía, al frente de CC Fontanar",
             zone: "Chía / Cajicá", phone: "6015557955 / 3157701575",
             lat: 4.8950, lng: -74.0400,
             social: "@celestinarestaurante", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
+            mariachiSpecified: false,
+            familiar: true, campestre: false,
+            notas: "Restaurante gourmet con paquetes para celebraciones. Paquete base para eventos desde 100 invitados. Consultar mariachis.",
             mapsSearch: "Celestina Restaurante Chía Cajicá"
         },
         {
-            id: 6, name: "Semolina Chía Fontanar", address: "Km 2.5 vía Chía-Cajicá, Local 253, CC Fontanar",
-            zone: "Chía (Fontanar)", phone: "6013770680 / 3219591208",
-            lat: 4.8950, lng: -74.0450,
-            social: "@semolinarestaurante", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
-            mapsSearch: "Semolina Fontanar Chía"
+            id: 10, name: "La Carreta Parrilla Campestre",
+            address: "Finca Villa Juliana, Vía Tiquiza, Chía",
+            zone: "Chía (Tiquiza)", phone: "Consultar Instagram",
+            lat: 4.8680, lng: -74.0580,
+            social: "@lacarretachia", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Parrilla campestre familiar. Música en vivo fines de semana. Pet friendly. Zonas verdes amplias para niños.",
+            mapsSearch: "La Carreta Parrilla Campestre Chía"
         },
         {
-            id: 7, name: "Distrito México", address: "Carrera 9 #14-98, Chía",
-            zone: "Chía (Centro)", phone: "Consultar redes",
-            lat: 4.8620, lng: -74.0580,
-            social: "@distritomexico", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
-            mapsSearch: "Distrito México Chía"
+            id: 11, name: "La Ruana Campestre",
+            address: "Km 2 vía Chía-Cota",
+            zone: "Chía / Cota", phone: "3103431192",
+            lat: 4.8700, lng: -74.0680,
+            social: "@laruanachia", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre con parrilla y comida típica. Eventos familiares y empresariales. Permiten mariachis y papayera.",
+            mapsSearch: "La Ruana Campestre Chía"
         },
         {
-            id: 8, name: "Lupe Tex Mex", address: "Calle 2da #11-80, Variante Chía-Cota",
-            zone: "Chía (Variante Cota)", phone: "Consultar redes",
-            lat: 4.8700, lng: -74.0650,
-            social: "@lupetexmex", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
-            mapsSearch: "Lupe Tex Mex Chía"
+            id: 12, name: "Patio Parrilla",
+            address: "Km 3.5 Vía Cota-Chía",
+            zone: "Cota", phone: "3502677341",
+            lat: 4.8380, lng: -74.0850,
+            social: "@patio_parrilla", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre con canchas de fútbol, mini tejo, volleyball. Ideal para eventos familiares y empresariales.",
+            mapsSearch: "Patio Parrilla Cota"
         },
         {
-            id: 9, name: "El Galapago Campestre", address: "Calle 19 #14-08, Chía",
-            zone: "Chía (Centro)", phone: "3023653612",
-            lat: 4.8650, lng: -74.0580,
-            social: "@elgalapagorestaurantes", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
-            mapsSearch: "El Galapago Campestre Chía"
-        },
-        {
-            id: 10, name: "Restaurante El Transportador", address: "Km 2 Vía Cota-Chía, Finca La Manuela",
+            id: 13, name: "Restaurante El Transportador",
+            address: "Km 2 Vía Cota-Chía, Finca La Manuela",
             zone: "Cota", phone: "3176584245",
             lat: 4.8350, lng: -74.0900,
             social: "@restauranteeltransportador", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante temático automotor único en Colombia. Celebran cumpleaños. Ambiente divertido para toda la familia.",
             mapsSearch: "Restaurante El Transportador Cota"
         },
         {
-            id: 11, name: "Vulcano Gastrobar", address: "Cra 5 #9-26 sur, Piso 7, Hotel Sabana Park",
-            zone: "Cajicá", phone: "3005914316",
-            lat: 4.9180, lng: -74.0300,
-            social: "@vulcano.gastrobar", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
-            mapsSearch: "Vulcano Gastrobar Cajicá"
+            id: 14, name: "Semolina Chía Fontanar",
+            address: "Km 2.5 vía Chía-Cajicá, Local 253, CC Fontanar",
+            zone: "Chía (Fontanar)", phone: "6013770680 / 3219591208",
+            lat: 4.8950, lng: -74.0450,
+            social: "@semolinarestaurante", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: false,
+            notas: "Restaurante familiar italiano con pizza, pasta y desayunos. 10 años de tradición. Consultar para eventos.",
+            mapsSearch: "Semolina Fontanar Chía"
         },
         {
-            id: 12, name: "Restaurante El Lobo", address: "Cra 8 #3-32, frente a Bancolombia",
-            zone: "Cajicá", phone: "Consultar redes",
+            id: 15, name: "4 Artistas",
+            address: "Cajicá, cerca al CC Fontanar",
+            zone: "Cajicá", phone: "3105430126",
+            lat: 4.8950, lng: -74.0380,
+            social: "@4.artistas", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante + experiencia artística. Pintura y comida. Pet friendly. Plan familiar, en pareja o con amigos.",
+            mapsSearch: "4 Artistas Cajicá"
+        },
+        {
+            id: 16, name: "El Galapago Campestre",
+            address: "Calle 19 #14-08, Chía",
+            zone: "Chía (Centro)", phone: "3023653612",
+            lat: 4.8650, lng: -74.0580,
+            social: "@elgalapagorestaurantes", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Carnes y hamburguesas artesanales. Ambiente campestre familiar. Consultar para celebraciones.",
+            mapsSearch: "El Galapago Campestre Chía"
+        },
+        {
+            id: 17, name: "Distrito México",
+            address: "Carrera 9 #14-98, Chía",
+            zone: "Chía (Centro)", phone: "Consultar redes",
+            lat: 4.8620, lng: -74.0580,
+            social: "@distritomexico", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: false,
+            notas: "Restaurante mexicano en Chía. Comida auténtica. Consultar si permiten mariachis para tu celebración.",
+            mapsSearch: "Distrito México Chía"
+        },
+        {
+            id: 18, name: "Beatriz Restaurantes",
+            address: "Cra 9 #19-90, Chía",
+            zone: "Chía", phone: "3125047290",
+            lat: 4.8630, lng: -74.0550,
+            social: "@beatriz.restaurantes", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: false,
+            notas: "Comida colombiana criolla, ajiaco, picadas. Ambiente acogedor familiar. Eventos y catering.",
+            mapsSearch: "Beatriz Restaurantes Chía"
+        },
+        {
+            id: 19, name: "La Granja Tenjo",
+            address: "Km 12 vía Siberia-Tenjo",
+            zone: "Tenjo (Siberia)", phone: "Consultar web",
+            lat: 4.8700, lng: -74.1200,
+            social: "@lagranjatenjo", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre con granja, animales, fiestas infantiles. El plan perfecto para ir con niños. Visitas pedagógicas.",
+            mapsSearch: "La Granja Tenjo Restaurante"
+        },
+        // === NUEVOS: CAMPESTRES Y FAMILIARES CERCA ===
+        {
+            id: 20, name: "Parque Restaurante El Sauce",
+            address: "Vía Siberia-Cota, Cota",
+            zone: "Cota (Siberia)", phone: "3003641060 / 3212331143",
+            lat: 4.8250, lng: -74.1000,
+            social: "@eventoselsauce", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Parque restaurante con más de 17 juegos para niños y adultos, karts, tejo. Salones para eventos desde 20 hasta 400 personas. Fiestas infantiles y empresariales.",
+            mapsSearch: "Parque Restaurante El Sauce Cota"
+        },
+        {
+            id: 21, name: "Hacienda Canta Gallo",
+            address: "Vía Cajicá, Chía",
+            zone: "Cajicá / Chía", phone: "3045858639",
+            lat: 4.9100, lng: -74.0250,
+            social: "@haciendacantagallo", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre con granja y espectáculo de caballos en vivo. Delicias de la cocina colombiana en ambiente familiar. Eventos especiales.",
+            mapsSearch: "Hacienda Canta Gallo Cajicá"
+        },
+        {
+            id: 22, name: "La Jira Granja Restaurante",
+            address: "Km 8 vía Siberia-Tenjo",
+            zone: "Tenjo (Siberia)", phone: "3127568207",
+            lat: 4.8550, lng: -74.1150,
+            social: "@lajiragranjarestaurante", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Granja-restaurante con zona de pícnic, más de 12 actividades, animales. Fiestas infantiles y eventos familiares. Pet friendly.",
+            mapsSearch: "La Jira Granja Restaurante Tenjo"
+        },
+        {
+            id: 23, name: "Presidencial Campestre",
+            address: "Km 1.5 Variante Cajicá",
+            zone: "Cajicá", phone: "Consultar Instagram",
             lat: 4.9200, lng: -74.0280,
-            social: "@el_lobohamburguesas", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
-            mapsSearch: "Restaurante El Lobo Cajicá"
+            social: "@presidencial_campestre", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Restaurante campestre y familiar en Cajicá. Celebraciones especiales, música en vivo, buena comida y ambiente para compartir en familia.",
+            mapsSearch: "Presidencial Campestre Cajicá"
         },
         {
-            id: 13, name: "La Güera", address: "Calle 138 #55-53, CC La Colina",
-            zone: "Bogotá (Colina Campestre)", phone: "3104571599 / 3114403333",
+            id: 24, name: "Parrilla Rancho Guacarí",
+            address: "Chía, Cundinamarca",
+            zone: "Chía", phone: "Consultar Instagram",
+            lat: 4.8720, lng: -74.0620,
+            social: "@parrilla_ranchoguacari", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: true,
+            notas: "Parrilla campestre en Chía. Ambiente cómodo para celebrar cumpleaños. Comida casera deliciosa. Espacios amplios para familias.",
+            mapsSearch: "Parrilla Rancho Guacarí Chía"
+        },
+        // === BOGOTÁ NORTE (mexicanos con mariachi y familiares) ===
+        {
+            id: 25, name: "La Güera",
+            address: "Calle 138 #55-53, CC La Colina",
+            zone: "Bogotá (Colina Campestre)", phone: "3104571599",
             lat: 4.7580, lng: -74.0520,
             social: "@laguera.co", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
+            mariachiSpecified: true,
+            familiar: true, campestre: false,
+            notas: "Restaurante familiar con mariachi y banda. Espacios para toda la familia. Platos desde $26K.",
             mapsSearch: "La Güera Restaurante Bogotá"
         },
         {
-            id: 14, name: "La Chula 116", address: "Calle 116 #19-50",
-            zone: "Bogotá (Calle 116)", phone: "6015110529",
-            lat: 4.7205, lng: -74.0510,
-            social: "@lachulabogota", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "La Chula 116 Bogotá"
-        },
-        {
-            id: 15, name: "Plaza MX Mariachis", address: "Av. Calle 116 #19-66",
+            id: 26, name: "Plaza MX Mariachis",
+            address: "Av. Calle 116 #19-66",
             zone: "Bogotá (Calle 116 / Santa Bárbara)", phone: "6013909811 / 3216996402",
             lat: 4.7203, lng: -74.0505,
             social: "@plazamxmariachi", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
+            mariachiSpecified: true,
+            familiar: true, campestre: false,
+            notas: "Restaurante mexicano con show de mariachis. Primer show musical y gastro bar mexicano en Colombia. Va bien con familias.",
             mapsSearch: "Plaza MX Mariachis Bogotá"
         },
         {
-            id: 16, name: "Plaza MX Taquería", address: "Cra. 19a #117-13",
-            zone: "Bogotá (Usaquén)", phone: "6013909811 / 3138138040",
-            lat: 4.7250, lng: -74.0445,
-            social: "@plazamxcantina", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "Plaza MX Taquería Usaquén"
-        },
-        {
-            id: 17, name: "Casa Mexicana", address: "Calle 118 #5-23, Usaquén",
+            id: 27, name: "Casa Mexicana",
+            address: "Calle 118 #5-23, Usaquén",
             zone: "Bogotá (Usaquén)", phone: "3183306423 / 3188015966",
             lat: 4.7265, lng: -74.0590,
             social: "@casamexicanabogota", socialType: "facebook",
-            mariachiVivo: true, mariachiExterno: true,
+            mariachiSpecified: true,
+            familiar: true, campestre: false,
+            notas: "Tradición desde 1989. Mariachis viernes a domingo. Comida mexicana auténtica en zona familiar de Usaquén.",
             mapsSearch: "Casa Mexicana Usaquén Bogotá"
         },
         {
-            id: 18, name: "Casa Jalisco Usaquén", address: "Calle 120a #5-55",
+            id: 28, name: "Casa Jalisco Usaquén",
+            address: "Calle 120a #5-55",
             zone: "Bogotá (Usaquén)", phone: "6017711535 / 3165639035",
             lat: 4.7295, lng: -74.0590,
             social: "@casajaliscousaquen", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
+            mariachiSpecified: true,
+            familiar: true, campestre: false,
+            notas: "Comida mexicana auténtica en Usaquén. Mariachis en vivo. Ambiente tranquilo y familiar.",
             mapsSearch: "Casa Jalisco Usaquén Bogotá"
         },
         {
-            id: 19, name: "La Chula Zona T", address: "Cra 13 #82-58, Zona T",
-            zone: "Bogotá (Zona T)", phone: "6015110529",
-            lat: 4.6685, lng: -74.0555,
-            social: "@lachulabogota", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "La Chula Zona T Bogotá"
+            id: 29, name: "Plaza MX Taquería",
+            address: "Cra. 19a #117-13, Usaquén",
+            zone: "Bogotá (Usaquén)", phone: "6013909811 / 3138138040",
+            lat: 4.7250, lng: -74.0445,
+            social: "@plazamxcantina", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: false,
+            notas: "Taquería familiar en Usaquén. Comida mexicana auténtica. Consultar mariachis para tu evento.",
+            mapsSearch: "Plaza MX Taquería Usaquén"
         },
         {
-            id: 20, name: "Cantina La 15", address: "Cra 13 #83-57",
-            zone: "Bogotá (Zona T)", phone: "3102103517 / 3009133447",
-            lat: 4.6675, lng: -74.0555,
-            social: "cantinala15.com", socialType: "web",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "Cantina La 15 Bogotá"
+            id: 30, name: "Entre Cuates Usaquén",
+            address: "Calle 118 #6a-40, Usaquén",
+            zone: "Bogotá (Usaquén)", phone: "Consultar Instagram",
+            lat: 4.7270, lng: -74.0540,
+            social: "@entrecuates", socialType: "instagram",
+            mariachiSpecified: true,
+            familiar: true, campestre: false,
+            notas: "Restaurante mexicano con mariachis en vivo. 3 sedes en Bogotá. Ambiente festivo, ideal para celebrar cumpleaños en familia.",
+            mapsSearch: "Entre Cuates Usaquén Bogotá"
         },
         {
-            id: 21, name: "El Techo Mexicano", address: "Calle 81 #11-94, Piso 5, CC El Retiro",
-            zone: "Bogotá (Zona Rosa)", phone: "3112103928",
-            lat: 4.6660, lng: -74.0580,
-            social: "@eltechomexicano", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "El Techo Mexicano Bogotá"
-        },
-        {
-            id: 22, name: "Mazaryk Restaurante", address: "Calle 90 #16-34, Piso 2",
-            zone: "Bogotá (Zona Rosa Norte)", phone: "3008039793",
-            lat: 4.6965, lng: -74.0545,
-            social: "@mazarykrestaurante", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "Mazaryk Restaurante Bogotá"
-        },
-        {
-            id: 23, name: "La Lupita Restorán", address: "Calle 69a #4-40",
-            zone: "Bogotá (Zona G / Chapinero)", phone: "Consultar Instagram",
-            lat: 4.6370, lng: -74.0590,
+            id: 31, name: "La Lupita Restorán",
+            address: "Calle 69A #4-40, Zona G",
+            zone: "Bogotá (Chapinero / Zona G)", phone: "Consultar Instagram",
+            lat: 4.6360, lng: -74.0620,
             social: "@lalupitarestaurante", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
+            mariachiSpecified: true,
+            familiar: true, campestre: false,
+            notas: "Cocina artesanal mexicana con mariachis. Celebran cumpleaños, grados, bautizos, baby shower. Ambiente festivo y acogedor.",
             mapsSearch: "La Lupita Restorán Bogotá"
         },
         {
-            id: 24, name: "Náhuatl Cocina Mexicana", address: "Calle 69a #5-36",
-            zone: "Bogotá (Zona G / Chapinero)", phone: "Consultar Instagram",
-            lat: 4.6375, lng: -74.0585,
-            social: "@nahuatl.restaurante", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "Náhuatl Cocina Mexicana Bogotá"
+            id: 32, name: "Cantina La 15",
+            address: "Cra 13 #83-57, Chicó",
+            zone: "Bogotá (Chicó / Carrera 13)", phone: "3102103517",
+            lat: 4.6680, lng: -74.0570,
+            social: "@cantinala15", socialType: "instagram",
+            mariachiSpecified: true,
+            familiar: true, campestre: false,
+            notas: "Mejor restaurante mexicano de Colombia según TripAdvisor. Mariachis, DJ y música en vivo. Ambiente festivo para celebraciones.",
+            mapsSearch: "Cantina La 15 Bogotá"
         },
         {
-            id: 25, name: "La Bendita Cantina Mariachi", address: "Cra 60 #24-09, CC Gran Estación II, Local 333",
-            zone: "Bogotá (Teusaquillo / Gran Estación)", phone: "6962013 / 3123890345",
-            lat: 4.6500, lng: -74.0940,
-            social: "@labenditacantinamariachi", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "La Bendita Cantina Mariachi Bogotá"
+            id: 33, name: "Mazaryk Restaurante",
+            address: "Calle 90 #16-34, Piso 2, Chicó",
+            zone: "Bogotá (Chicó / Calle 90)", phone: "3008039793",
+            lat: 4.6980, lng: -74.0600,
+            social: "@mazarykrestaurante", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: false,
+            notas: "Restaurante de experiencia culinaria en Chicó. Eventos y celebraciones especiales. Capacidad para eventos de distintos formatos.",
+            mapsSearch: "Mazaryk Restaurante Bogotá"
         },
         {
-            id: 26, name: "Bar Cantineros", address: "Av Calle 72 #97-22",
-            zone: "Bogotá (Engativá)", phone: "3008254249",
-            lat: 4.6510, lng: -74.0605,
-            social: "@cantinerosbar", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "Bar Cantineros Bogotá"
+            id: 34, name: "Oliveto Pizza & Pasta",
+            address: "Calle 119 #6-12, Usaquén",
+            zone: "Bogotá (Usaquén)", phone: "2134124 / 3113599855",
+            lat: 4.7280, lng: -74.0570,
+            social: "@restauranteoliveto", socialType: "instagram",
+            mariachiSpecified: false,
+            familiar: true, campestre: false,
+            notas: "Trattoria italiana familiar. 25 años de tradición. Pizza napolitana, pasta artesanal. Jardin pet-friendly. Música en vivo jueves. Consultar para eventos.",
+            mapsSearch: "Oliveto Pizza Pasta Usaquén Bogotá"
         },
         {
-            id: 27, name: "Jalisco Comida Mexicana & Parrilla", address: "Cra 11 #97-14, Chicó Norte",
-            zone: "Bogotá (Chicó Norte)", phone: "3165816938",
-            lat: 4.6685, lng: -74.0540,
-            social: "@jaliscoyparrilla", socialType: "instagram",
-            mariachiVivo: false, mariachiExterno: true,
-            mapsSearch: "Jalisco Comida Mexicana Parrilla Bogotá"
-        },
-        {
-            id: 28, name: "Plaza MX Modelia", address: "Calle 24D #75-20",
-            zone: "Bogotá (Modelia)", phone: "6013909811",
-            lat: 4.6610, lng: -74.1030,
-            social: "@plazamxmodelia", socialType: "instagram",
-            mariachiVivo: true, mariachiExterno: true,
-            mapsSearch: "Plaza MX Modelia Bogotá"
+            id: 35, name: "La Chula Zona T",
+            address: "Calle 82 #12-28, Zona T",
+            zone: "Bogotá (Zona T / Chicó)", phone: "6017434333",
+            lat: 4.6680, lng: -74.0590,
+            social: "@lachulabta", socialType: "instagram",
+            mariachiSpecified: true,
+            familiar: true, campestre: false,
+            notas: "Restaurante y bar mexicano con mariachi en vivo. Celebraciones y eventos. Comida auténtica mexicana. Ambiente festivo para familias.",
+            mapsSearch: "La Chula Zona T Bogotá"
         }
     ];
 
-    // Calculate distances
     function haversine(lat1, lon1, lat2, lon2) {
         const R = 6371;
         const dLat = (lat2 - lat1) * Math.PI / 180;
@@ -783,95 +700,52 @@
         const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
                   Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
                   Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        return R * c;
+        return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     }
 
-    restaurants.forEach(r => {
-        r.distance = haversine(USER_LAT, USER_LNG, r.lat, r.lng);
-    });
+    restaurants.forEach(r => { r.distance = haversine(REF_LAT, REF_LNG, r.lat, r.lng); });
 
-    // Initialize map
-    const map = L.map('map', {
-        center: [USER_LAT, USER_LNG],
-        zoom: 11,
-        zoomControl: true
-    });
+    // Centro del mapa en la zona de los restaurantes (no muestra ubicación exacta)
+    const mapCenterLat = 4.82;
+    const mapCenterLng = -74.06;
+    const map = L.map('map', { center: [mapCenterLat, mapCenterLng], zoom: 11, zoomControl: true });
 
-    // Using CartoDB tiles which work from file:// protocol (no Referer requirement)
     L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
         attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/">CARTO</a>',
-        maxZoom: 20,
-        subdomains: 'abcd'
+        maxZoom: 20, subdomains: 'abcd'
     }).addTo(map);
 
-    // User marker
-    const userIcon = L.divIcon({
-        className: 'custom-marker',
-        html: '<div class="marker-pin user-pin"><span>📍</span></div>',
-        iconSize: [36, 36],
-        iconAnchor: [18, 36],
-        popupAnchor: [0, -36]
-    });
+    // No se muestra marcador de ubicación del usuario por privacidad
 
-    L.marker([USER_LAT, USER_LNG], { icon: userIcon })
-        .addTo(map)
-        .bindPopup(`
-            <div class="popup-container">
-                <div class="popup-header">
-                    <div class="popup-name">Tu Ubicación</div>
-                    <div class="popup-zone">4°57'17.8"N 74°04'43.1"W</div>
-                </div>
-                <div class="popup-body">
-                    <div class="popup-row">
-                        <i class="fas fa-home"></i>
-                        <div>
-                            <div class="label">ZONA</div>
-                            <div class="value">La Caro / Norte de Bogotá</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        `);
-
-    // Restaurant markers
     const markers = {};
     let currentFilter = 'all';
 
-    function createMarkerIcon(id) {
+    function createMarkerIcon(r) {
+        const cls = r.mariachiSpecified ? '' : ' not-specified-pin';
         return L.divIcon({
             className: 'custom-marker',
-            html: `<div class="marker-pin"><span>${id}</span></div>`,
-            iconSize: [32, 32],
-            iconAnchor: [16, 32],
-            popupAnchor: [0, -32]
+            html: `<div class="marker-pin${cls}"><span>${r.id}</span></div>`,
+            iconSize: [32, 32], iconAnchor: [16, 32], popupAnchor: [0, -32]
         });
     }
 
     function getSocialLink(r) {
-        if (r.socialType === 'instagram') {
-            return `https://www.instagram.com/${r.social.replace('@', '')}/`;
-        } else if (r.socialType === 'facebook') {
-            return `https://www.facebook.com/${r.social.replace('@', '')}/`;
-        } else if (r.socialType === 'web') {
-            return r.social.startsWith('http') ? r.social : `https://${r.social}`;
-        }
+        if (r.socialType === 'instagram') return `https://www.instagram.com/${r.social.replace('@', '')}/`;
+        if (r.socialType === 'facebook') return `https://www.facebook.com/${r.social.replace('@', '')}/`;
+        if (r.socialType === 'web') return r.social.startsWith('http') ? r.social : `https://${r.social}`;
         return '#';
     }
 
     function getSocialIcon(type) {
-        switch(type) {
-            case 'instagram': return 'fab fa-instagram';
-            case 'facebook': return 'fab fa-facebook-f';
-            case 'web': return 'fas fa-globe';
-            default: return 'fas fa-link';
-        }
+        if (type === 'instagram') return 'fab fa-instagram';
+        if (type === 'facebook') return 'fab fa-facebook-f';
+        return 'fas fa-globe';
     }
 
     function createPopupContent(r) {
         const distKm = r.distance.toFixed(1);
         const mapsUrl = `https://www.google.com/maps/search/?api=1&query=${r.lat},${r.lng}`;
-        const directionsUrl = `https://www.google.com/maps/dir/?api=1&origin=${USER_LAT},${USER_LNG}&destination=${r.lat},${r.lng}`;
+        const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
         const socialLink = getSocialLink(r);
         const socialIcon = getSocialIcon(r.socialType);
 
@@ -882,92 +756,59 @@
                     <div class="popup-zone">${r.zone}</div>
                 </div>
                 <div class="popup-body">
-                    <div class="popup-row">
-                        <i class="fas fa-map-marker-alt"></i>
-                        <div>
-                            <div class="label">DIRECCIÓN</div>
-                            <div class="value">${r.address}</div>
-                        </div>
-                    </div>
-                    <div class="popup-row">
-                        <i class="fas fa-phone"></i>
-                        <div>
-                            <div class="label">TELÉFONO</div>
-                            <div class="value">${r.phone}</div>
-                        </div>
-                    </div>
-                    <div class="popup-row">
-                        <i class="fas fa-route"></i>
-                        <div>
-                            <div class="label">DISTANCIA DESDE TU UBICACIÓN</div>
-                            <div class="value">${distKm} km</div>
-                        </div>
-                    </div>
+                    <div class="popup-row"><i class="fas fa-map-marker-alt"></i><div><div class="label">DIRECCIÓN</div><div class="value">${r.address}</div></div></div>
+                    <div class="popup-row"><i class="fas fa-phone"></i><div><div class="label">TELÉFONO</div><div class="value">${r.phone}</div></div></div>
+                    <div class="popup-row"><i class="fas fa-route"></i><div><div class="label">DISTANCIA</div><div class="value">${distKm} km</div></div></div>
+                    <div class="popup-row"><i class="fas fa-info-circle"></i><div><div class="label">NOTAS</div><div class="value">${r.notas}</div></div></div>
                     <div class="popup-badges">
-                        ${r.mariachiVivo ? '<span class="popup-badge" style="background:rgba(196,30,58,0.2);color:#ff6b81;border:1px solid rgba(196,30,58,0.3);">🎸 Mariachi en Vivo</span>' : ''}
-                        ${r.mariachiExterno ? '<span class="popup-badge" style="background:rgba(46,204,113,0.2);color:#2ecc71;border:1px solid rgba(46,204,113,0.3);">✅ Permite Mariachis</span>' : ''}
+                        ${r.mariachiSpecified
+                            ? '<span class="popup-badge" style="background:rgba(46,125,50,0.2);color:#81c784;border:1px solid rgba(46,125,50,0.3);">🎸 Mariachi Confirmado</span>'
+                            : '<span class="popup-badge" style="background:rgba(230,81,0,0.2);color:#ffb74d;border:1px solid rgba(230,81,0,0.3);">⚠️ Mariachi No Especificado</span>'}
+                        ${r.campestre ? '<span class="popup-badge" style="background:rgba(139,69,19,0.3);color:#d4a574;border:1px solid rgba(139,69,19,0.4);">🌿 Campestre</span>' : ''}
+                        ${r.familiar ? '<span class="popup-badge" style="background:rgba(33,150,243,0.2);color:#64b5f6;border:1px solid rgba(33,150,243,0.3);">👨‍👩‍👧‍👦 Familiar</span>' : ''}
                     </div>
                     <div class="popup-social">
-                        <a href="${socialLink}" target="_blank" rel="noreferrer" title="Red social">
-                            <i class="${socialIcon}"></i>
-                        </a>
-                        <a href="${mapsUrl}" target="_blank" rel="noreferrer" title="Ver en Google Maps">
-                            <i class="fas fa-map"></i>
-                        </a>
-                        <a href="tel:${r.phone.replace(/\s|\/|-/g, '').split(',')[0]}" title="Llamar">
-                            <i class="fas fa-phone"></i>
-                        </a>
+                        <a href="${socialLink}" target="_blank" rel="noreferrer" title="Red social"><i class="${socialIcon}"></i></a>
+                        <a href="${mapsUrl}" target="_blank" rel="noreferrer" title="Ver en Google Maps"><i class="fas fa-map"></i></a>
+                        <a href="tel:${r.phone.replace(/\s|\/|-/g, '').split(',')[0]}" title="Llamar"><i class="fas fa-phone"></i></a>
                     </div>
                 </div>
-                <a href="${directionsUrl}" target="_blank" class="popup-directions">
-                    <i class="fas fa-directions"></i> Cómo llegar desde mi ubicación
-                </a>
-            </div>
-        `;
+                <a href="${directionsUrl}" target="_blank" rel="noreferrer" class="popup-directions"><i class="fas fa-directions"></i> Cómo llegar</a>
+            </div>`;
     }
 
     restaurants.forEach(r => {
-        const marker = L.marker([r.lat, r.lng], { icon: createMarkerIcon(r.id) })
+        const marker = L.marker([r.lat, r.lng], { icon: createMarkerIcon(r) })
             .addTo(map)
-            .bindPopup(createPopupContent(r), { maxWidth: 320, minWidth: 280 });
+            .bindPopup(createPopupContent(r), { maxWidth: 340, minWidth: 290 });
         markers[r.id] = marker;
     });
 
-    // Sidebar rendering
     function filterRestaurants(filter, searchTerm = '') {
         let filtered = [...restaurants];
-        
-        if (filter === 'mariachi-vivo') {
-            filtered = filtered.filter(r => r.mariachiVivo);
-        } else if (filter === 'cerca') {
-            filtered = filtered.filter(r => r.distance <= 15);
-        } else if (filter === 'chia') {
-            filtered = filtered.filter(r => r.zone.toLowerCase().includes('chía') || r.zone.toLowerCase().includes('chia') || r.zone.toLowerCase().includes('cajicá') || r.zone.toLowerCase().includes('cota'));
-        } else if (filter === 'bogota-norte') {
-            filtered = filtered.filter(r => r.zone.toLowerCase().includes('bogotá') && (r.zone.includes('Norte') || r.zone.includes('Usaquén') || r.zone.includes('116') || r.zone.includes('Colina') || r.zone.includes('Chicó')));
-        }
-
+        if (filter === 'mariachi-si') filtered = filtered.filter(r => r.mariachiSpecified);
+        else if (filter === 'mariachi-no') filtered = filtered.filter(r => !r.mariachiSpecified);
+        else if (filter === 'cerca') filtered = filtered.filter(r => r.distance <= 15);
+        else if (filter === 'chia') filtered = filtered.filter(r =>
+            r.zone.toLowerCase().includes('chía') || r.zone.toLowerCase().includes('chia') ||
+            r.zone.toLowerCase().includes('cajicá') || r.zone.toLowerCase().includes('cota') ||
+            r.zone.toLowerCase().includes('tenjo'));
+        else if (filter === 'campestre') filtered = filtered.filter(r => r.campestre);
+        else if (filter === 'bogota') filtered = filtered.filter(r =>
+            r.zone.toLowerCase().includes('bogotá') || r.zone.toLowerCase().includes('bogota'));
         if (searchTerm) {
-            const term = searchTerm.toLowerCase();
-            filtered = filtered.filter(r => 
-                r.name.toLowerCase().includes(term) || 
-                r.zone.toLowerCase().includes(term) || 
-                r.address.toLowerCase().includes(term)
-            );
+            const t = searchTerm.toLowerCase();
+            filtered = filtered.filter(r =>
+                r.name.toLowerCase().includes(t) || r.zone.toLowerCase().includes(t) || r.address.toLowerCase().includes(t));
         }
-
         return filtered;
     }
 
     function sortRestaurants(filtered) {
         const sortBy = document.getElementById('sortSelect').value;
-        if (sortBy === 'distance') {
-            filtered.sort((a, b) => a.distance - b.distance);
-        } else if (sortBy === 'name') {
-            filtered.sort((a, b) => a.name.localeCompare(b.name));
-        } else if (sortBy === 'mariachi') {
-            filtered.sort((a, b) => (b.mariachiVivo ? 1 : 0) - (a.mariachiVivo ? 1 : 0) || a.distance - b.distance);
-        }
+        if (sortBy === 'distance') filtered.sort((a, b) => a.distance - b.distance);
+        else if (sortBy === 'name') filtered.sort((a, b) => a.name.localeCompare(b.name));
+        else if (sortBy === 'mariachi') filtered.sort((a, b) => (b.mariachiSpecified ? 1 : 0) - (a.mariachiSpecified ? 1 : 0) || a.distance - b.distance);
         return filtered;
     }
 
@@ -976,38 +817,34 @@
         let filtered = filterRestaurants(currentFilter, searchTerm);
         filtered = sortRestaurants(filtered);
 
-        const listEl = document.getElementById('restaurantList');
-        listEl.innerHTML = filtered.map(r => `
+        document.getElementById('restaurantList').innerHTML = filtered.map(r => `
             <div class="restaurant-card" data-id="${r.id}" onclick="focusRestaurant(${r.id})">
-                <div class="card-number">${r.id}</div>
+                <div class="card-number ${r.mariachiSpecified ? 'specified' : 'not-specified'}">${r.id}</div>
                 <div class="card-content">
                     <div class="card-name">${r.name}</div>
                     <div class="card-zone">${r.zone}</div>
                     <div class="card-address">${r.address}</div>
-                    <div class="distance-indicator"><i class="fas fa-route"></i> ${r.distance.toFixed(1)} km de tu ubicación</div>
+                    <div class="distance-indicator"><i class="fas fa-route"></i> ${r.distance.toFixed(1)} km</div>
                     <div class="card-badges">
-                        ${r.mariachiVivo ? '<span class="badge badge-mariachi">🎸 Mariachi Vivo</span>' : ''}
-                        ${r.mariachiExterno ? '<span class="badge badge-externo">✅ Mariachis OK</span>' : ''}
+                        ${r.mariachiSpecified
+                            ? '<span class="badge badge-mariachi">🎸 Mariachi</span>'
+                            : '<span class="badge badge-not-specified">⚠️ Mariachi No Especificado</span>'}
+                        ${r.campestre ? '<span class="badge badge-campestre">🌿 Campestre</span>' : ''}
+                        ${r.familiar ? '<span class="badge badge-familiar">👨‍👩‍👧‍👦 Familiar</span>' : ''}
                         ${r.distance <= 10 ? '<span class="badge badge-distancia">📍 Muy Cerca</span>' : ''}
                     </div>
                 </div>
-            </div>
-        `).join('');
+            </div>`).join('');
 
-        // Update stats
         document.getElementById('totalCount').textContent = filtered.length;
-        document.getElementById('mariachiCount').textContent = filtered.filter(r => r.mariachiVivo).length;
+        document.getElementById('mariachiCount').textContent = filtered.filter(r => r.mariachiSpecified).length;
         document.getElementById('nearCount').textContent = filtered.filter(r => r.distance <= 15).length;
 
-        // Show/hide markers
         const filteredIds = new Set(filtered.map(r => r.id));
         restaurants.forEach(r => {
             if (markers[r.id]) {
-                if (filteredIds.has(r.id)) {
-                    if (!map.hasLayer(markers[r.id])) markers[r.id].addTo(map);
-                } else {
-                    if (map.hasLayer(markers[r.id])) map.removeLayer(markers[r.id]);
-                }
+                if (filteredIds.has(r.id)) { if (!map.hasLayer(markers[r.id])) markers[r.id].addTo(map); }
+                else { if (map.hasLayer(markers[r.id])) map.removeLayer(markers[r.id]); }
             }
         });
     }
@@ -1017,18 +854,12 @@
         if (r && markers[id]) {
             map.setView([r.lat, r.lng], 15);
             markers[id].openPopup();
-            
-            // Highlight card
             document.querySelectorAll('.restaurant-card').forEach(c => c.classList.remove('highlighted'));
             const card = document.querySelector(`.restaurant-card[data-id="${id}"]`);
-            if (card) {
-                card.classList.add('highlighted');
-                card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-            }
+            if (card) { card.classList.add('highlighted'); card.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); }
         }
     }
 
-    // Event listeners
     document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -1037,11 +868,8 @@
             renderList();
         });
     });
-
     document.getElementById('searchBox').addEventListener('input', renderList);
     document.getElementById('sortSelect').addEventListener('change', renderList);
-
-    // Initial render
     renderList();
 </script>
 </body>
